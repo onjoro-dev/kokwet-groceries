@@ -1,0 +1,23 @@
+services:
+  - type: web
+    name: kokwet-groceries-api
+    runtime: node
+    plan: starter
+    buildCommand: npm ci && npm run build
+    startCommand: npm start
+    healthCheckPath: /api/health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 10000
+      - key: MONGO_URI
+        sync: false
+      - key: JWT_SECRET
+        generateValue: true
+      - key: CLIENT_URL
+        sync: false
+      - key: FREE_DELIVERY_THRESHOLD
+        value: 3000
+      - key: STANDARD_DELIVERY_FEE
+        value: 150

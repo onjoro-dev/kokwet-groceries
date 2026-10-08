@@ -1,0 +1,73 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    font-family: "Inter", system-ui, sans-serif;
+    scroll-behavior: smooth;
+  }
+  body {
+    @apply bg-white text-gray-800;
+  }
+  /* Visible keyboard focus everywhere, for accessibility */
+  :focus-visible {
+    outline: 2px solid theme("colors.brand.600");
+    outline-offset: 2px;
+  }
+}
+
+/* Admin store settings can change the live theme without rebuilding Tailwind. */
+.bg-brand-600, .hover\:bg-brand-600:hover { background-color: var(--store-primary, #006b32) !important; }
+.bg-brand-700, .hover\:bg-brand-700:hover { background-color: var(--store-primary-dark, #005326) !important; }
+.bg-brand-800, .hover\:bg-brand-800:hover { background-color: var(--store-primary-dark, #005326) !important; }
+.bg-brand-900 { background-color: color-mix(in srgb, var(--store-primary, #006b32) 72%, #000) !important; }
+.text-brand-700, .text-brand-600 { color: var(--store-primary-dark, #005326) !important; }
+.bg-accent-500, .hover\:bg-accent-500:hover { background-color: var(--store-accent, #f7941d) !important; }
+.from-brand-600 { --tw-gradient-from: var(--store-primary, #006b32) var(--tw-gradient-from-position); --tw-gradient-to: rgb(0 107 50 / 0) var(--tw-gradient-to-position); --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to); }
+.to-brand-800 { --tw-gradient-to: var(--store-primary-dark, #005326) var(--tw-gradient-to-position); }
+
+/* The supplied logo has a black canvas. Screen blending lets that canvas merge
+   into this deep-green surface so the mark reads as part of the header. */
+.brand-logo-surface {
+  background: radial-gradient(ellipse at center, color-mix(in srgb, var(--store-primary, #006b32) 72%, #092a1b) 0%, color-mix(in srgb, var(--store-primary, #006b32) 82%, #031b10) 100%);
+}
+
+@keyframes slideIn {
+  from {
+    transform: translateX(100%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.animate-fade-in {
+  animation: fadeIn 700ms ease-out both;
+}
+
+@media print {
+  .no-print { display: none !important; }
+  .print-card { box-shadow: none !important; border: 0 !important; }
+}
+
+@layer utilities {
+  .line-clamp-2 {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+}
