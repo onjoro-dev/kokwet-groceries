@@ -111,6 +111,25 @@ test("product quick view displays the full image without cropping", async ({ pag
   await expect(dialog.getByRole("link", { name: "View details" })).toBeVisible();
 });
 
+test("mobile quick view keeps the complete dialog content within the screen", async ({ page }) => {
+  await page.setViewportSize({ width: 375, height: 812 });
+  await page.goto("/");
+  await page.getByRole("button", { name: /quick view test apple/i }).click();
+
+  const dialog = page.getByRole("dialog", { name: "Test Apple" });
+  await expect(dialog).toBeVisible();
+  const dimensions = await dialog.evaluate((element) => ({
+    scrollWidth: element.scrollWidth,
+    clientWidth: element.clientWidth,
+    left: element.getBoundingClientRect().left,
+    right: element.getBoundingClientRect().right,
+    viewportWidth: document.documentElement.clientWidth,
+  }));
+  expect(dimensions.scrollWidth, JSON.stringify(dimensions)).toBeLessThanOrEqual(dimensions.clientWidth);
+  expect(dimensions.left, JSON.stringify(dimensions)).toBeGreaterThanOrEqual(0);
+  expect(dimensions.right, JSON.stringify(dimensions)).toBeLessThanOrEqual(dimensions.viewportWidth);
+});
+
 test("product image fits on a mobile viewport and opens at full size", async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto("/product/test-apple");
