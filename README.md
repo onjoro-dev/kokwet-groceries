@@ -80,6 +80,11 @@ dashboard and customer pages, uploads and removes a temporary product with a tes
 and deletes the temporary image file. Override `KOKWET_ADMIN_EMAIL` and
 `KOKWET_ADMIN_PASSWORD` if your local admin credentials differ.
 
+### Playwright frontend checks
+
+The standalone `playwright-tests/` folder contains browser tests that mock the API and do not
+modify live store data. See its README for setup and run instructions.
+
 ## Adding your logo
 
 Drop your logo file into `frontend/public/` (e.g. `logo.png`), then open
@@ -88,6 +93,78 @@ Drop your logo file into `frontend/public/` (e.g. `logo.png`), then open
 ```tsx
 <img src="/logo.png" alt="KOKWET Groceries" className="h-8" />
 ```
+
+## Production deployment runbook
+
+This project is structured so the backend and frontend can be deployed independently:
+
+1. Put the repository on GitHub.
+2. Deploy the backend from the `backend/` directory on Render (or another Node.js host).
+3. Deploy the frontend from the `frontend/` directory on Cloudflare Pages.
+4. Connect the deployed frontend origin to the backend `CLIENT_URL` and set the frontend
+   `VITE_API_URL` to the public backend API URL.
+
+### 1. Backend on Render
+
+- Repository root: the GitHub repo
+- Root directory: `backend`
+- Build command: `npm install && npm run build`
+- Start command: `npm start`
+- Health check path: `/api/health`
+- Production environment variables:
+  - `NODE_ENV=production`
+  - `PORT=10000` (Render will inject the port automatically, but keeping this value here helps local/host parity)
+  - `MONGO_URI=<MongoDB Atlas SRV URI>`
+  - `JWT_SECRET=<long random secret>`
+  - `CLIENT_URL=https://<frontend-production-origin>`
+  - `FREE_DELIVERY_THRESHOLD=3000`
+  - `STANDARD_DELIVERY_FEE=150`
+
+The backend API listens on the host port assigned by the platform and uses `CLIENT_URL` to
+permit the storefront origin in CORS and social-auth redirects.
+
+### 2. MongoDB Atlas
+
+- Create a MongoDB Atlas cluster (for example, an M0 or shared cluster in Cape Town)
+- Create a database user with a custom role scoped to the `kokwet-groceries` database only
+- Copy the MongoDB SRV connection string into `MONGO_URI`
+- Keep the app user separate from the admin account used for the project itself
+
+This keeps database permissions narrow and avoids over-scoped roles like `readWriteAnyDatabase`.
+
+### 3. Frontend on Cloudflare Pages
+
+- Project root: `frontend`
+- Build command: `npm run build`
+- Output directory: `dist`
+- Production environment variable: `VITE_API_URL=https://<backend-host>/api`
+- The frontend uses `frontend/public/_redirects` so that client-side routes work correctly on
+  Cloudflare Pages
+- Add the deployed storefront domain to the backend `CLIENT_URL` environment variable exactly as it appears in the browser
+
+### 4. Typical production env values
+
+```env
+# backend/.env (production)
+NODE_ENV=production
+PORT=10000
+MONGO_URI=mongodb+srv://<user>:<password>@kokwet-groceries.<cluster>.mongodb.net/kokwet-groceries?retryWrites=true&w=majority
+JWT_SECRET=<generate-a-long-random-secret>
+CLIENT_URL=https://example-storefront.pages.dev
+FREE_DELIVERY_THRESHOLD=3000
+STANDARD_DELIVERY_FEE=150
+```
+
+```env
+# frontend/.env.production or Cloudflare Pages variable
+VITE_API_URL=https://example-api.onrender.com/api
+```
+
+### 5. Uploaded files in production
+
+Product and admin uploads are stored under `backend/uploads/`. For a production deployment, keep
+that directory on a persistent volume or move files to a durable storage platform before relying
+on uploaded images in a live environment. Container filesystems can be replaced during deploys.
 
 ## Notes on payments and delivery
 

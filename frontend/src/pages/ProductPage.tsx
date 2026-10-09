@@ -10,6 +10,8 @@ import Badge from "../components/ui/Badge";
 import Spinner from "../components/ui/Spinner";
 import ProductGrid from "../components/product/ProductGrid";
 import BrandVisual from "../components/ui/BrandVisual";
+import Modal from "../components/ui/Modal";
+import { resolveMediaUrl } from "../utils/media";
 
 /** Full product detail page: image, price, stock, delivery promise, and related items. */
 export default function ProductPage() {
@@ -17,6 +19,7 @@ export default function ProductPage() {
   const [product, setProduct] = useState<Product | null>(null);
   const [related, setRelated] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
+  const [imageOpen, setImageOpen] = useState(false);
   const { items, addItem, updateQuantity } = useCart();
 
   useEffect(() => {
@@ -71,7 +74,14 @@ export default function ProductPage() {
 
       <div className="grid md:grid-cols-2 gap-8">
         <div className="aspect-square bg-gray-50 rounded-2xl overflow-hidden relative">
-          <img src={product.image} alt={product.name} className="w-full h-full object-cover" />
+          <button
+            type="button"
+            onClick={() => setImageOpen(true)}
+            aria-label={`View larger image of ${product.name}`}
+            className="h-full w-full cursor-zoom-in p-3"
+          >
+            <img src={resolveMediaUrl(product.image)} alt={product.name} className="w-full h-full object-contain" />
+          </button>
           {discount && (
             <span className="absolute top-3 left-3 bg-accent-500 text-white text-sm font-bold px-3 py-1 rounded-lg">
               Save {discount}%
@@ -142,6 +152,12 @@ export default function ProductPage() {
           </div>
         </div>
       </div>
+
+      <Modal open={imageOpen} title={product.name} description="Product image" onClose={() => setImageOpen(false)} size="lg">
+        <div className="flex max-h-[72vh] items-center justify-center bg-gray-50">
+          <img src={resolveMediaUrl(product.image)} alt={product.name} className="max-h-[72vh] max-w-full object-contain" />
+        </div>
+      </Modal>
 
       {related.length > 0 && (
         <div className="mt-14">

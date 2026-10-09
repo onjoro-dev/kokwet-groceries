@@ -4,6 +4,7 @@ import { formatKES } from "../../utils";
 import QuantityStepper from "../ui/QuantityStepper";
 import Button from "../ui/Button";
 import EmptyState from "../ui/EmptyState";
+import { resolveMediaUrl } from "../../utils/media";
 
 /**
  * Slide-over cart preview. Opens automatically when an item is added, and from the
@@ -45,7 +46,7 @@ export default function CartDrawer() {
             <ul className="space-y-4">
               {items.map(({ product, quantity }) => (
                 <li key={product._id} className="flex gap-3">
-                  <img src={product.image} alt={product.name} className="w-16 h-16 rounded-lg object-cover bg-gray-50" />
+                  <img src={resolveMediaUrl(product.image)} alt={product.name} className="w-16 h-16 rounded-lg object-contain bg-gray-50" />
                   <div className="flex-1 min-w-0">
                     <p className="text-sm font-medium text-gray-800 line-clamp-2">{product.name}</p>
                     <p className="text-xs text-gray-400">{product.unit}</p>

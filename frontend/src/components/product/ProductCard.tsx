@@ -24,7 +24,7 @@ export default function ProductCard({ product, query = "" }: { product: Product;
             src={resolveMediaUrl(product.image)}
             alt={product.name}
             loading="lazy"
-            className="h-full w-full rounded-xl object-cover transition-transform duration-300 group-hover:scale-[1.03]"
+            className="h-full w-full rounded-xl object-contain transition-transform duration-300 group-hover:scale-[1.03]"
           />
           {discount && (
             <span className="absolute left-3 top-3 rounded-full bg-[#c93424] px-2.5 py-1 text-[11px] font-extrabold text-white shadow-sm">
