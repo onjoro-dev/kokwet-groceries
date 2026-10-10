@@ -12,6 +12,9 @@ import adminRoutes from "./routes/adminRoutes";
 import { notFound, errorHandler } from "./middleware/errorHandler";
 
 const app: Application = express();
+const uploadsDir = process.env.UPLOADS_DIR ? path.resolve(process.env.UPLOADS_DIR) : path.resolve(process.cwd(), "uploads");
+
+app.set("trust proxy", true);
 
 // --- Core middleware ---
 app.use(
@@ -22,7 +25,7 @@ app.use(
 );
 app.use(express.json());
 app.use(cookieParser());
-app.use("/uploads", express.static(path.resolve(process.cwd(), "uploads"), { maxAge: "1d", immutable: true }));
+app.use("/uploads", express.static(uploadsDir, { maxAge: "1d", immutable: true }));
 if (process.env.NODE_ENV !== "production") {
   app.use(morgan("dev"));
 }

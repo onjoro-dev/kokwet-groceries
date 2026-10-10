@@ -25,8 +25,13 @@ export const uploadProductImage = asyncHandler(async (req: Request, res: Respons
   }
 
   const filename = `${randomUUID()}.${imageType.extension}`;
-  const uploadsDirectory = path.resolve(process.cwd(), "uploads");
+  const uploadsDirectory = process.env.UPLOADS_DIR ? path.resolve(process.env.UPLOADS_DIR) : path.resolve(process.cwd(), "uploads");
   await mkdir(uploadsDirectory, { recursive: true });
   await writeFile(path.join(uploadsDirectory, filename), file, { flag: "wx" });
-  res.status(201).json({ imageUrl: `${req.protocol}://${req.get("host")}/uploads/${filename}` });
+
+  const forwardedProto = req.get("x-forwarded-proto")?.split(",")[0]?.trim() || req.protocol;
+  const host = req.get("x-forwarded-host") || req.get("host") || "localhost";
+  const imageUrl = `${forwardedProto}://${host}/uploads/${filename}`;
+
+  res.status(201).json({ imageUrl });
 });
